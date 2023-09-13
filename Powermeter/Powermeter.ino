@@ -41,14 +41,14 @@ unsigned short flags = 0x00;
 
 byte sensorlocation = 0x05;
 
-float rpm = 0;
+int rpm = 0;
 int newtons = 0;
 int watt = 0;
 uint32_t wattAvg = 0;
 
 int previousMillis = 0;
 int temp = 0;
-uint32_t rpmAvg = 0;
+int32_t rpmAvg = 0;
 int rpmTemp = 0;
 
 bool noRotation = false;
@@ -121,16 +121,12 @@ void setup() {
 void loop() {
   BLEDevice central = BLE.central();
   if(central){
-    noRotation = false;
     for (int i = 1; i <= samples; i++) {
       temp = force.get_units(1);
       rpmTemp = IMU.readFloatGyroZ()/6;
+      rpmTemp = rpmTemp * -1;
       if(temp < 0){
         temp = temp * -1;
-      }
-      if(rpmTemp < 1){
-        noRotation = true;
-        rpmTemp = 0;
       }
       rpmAvg = rpmAvg + rpmTemp;
       wattAvg = wattAvg + temp;
@@ -144,11 +140,13 @@ void loop() {
     wattAvg = 0;
     rpmAvg = 0;
 
-    if(noRotation){
-      rpm = 0;
-    }
-
     power = newtons * crankmeter * rpm * 0.21;
+
+    Serial.print(newtons);
+    Serial.print(",");
+    Serial.print(rpm);
+    Serial.print(",");
+    Serial.println(power);
 
     bleBuffer[0] = flags & 0xff;
     bleBuffer[1] = (flags >> 8) & 0xff;
