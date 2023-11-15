@@ -1,0 +1,4 @@
+{
+    "board": "Seeeduino:mbed:xiaonRF52840Sense",
+    "sketch": "Powermeter.ino"
+}

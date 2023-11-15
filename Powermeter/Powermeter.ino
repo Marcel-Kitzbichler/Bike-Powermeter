@@ -9,8 +9,8 @@
 // 170mm=0.17m
 #define factor 1200
 #define crankmeter 0.17
-#define samples 50
-#define rate 100   //time between samples
+#define samples 200
+#define rate 20   //time between samples
 #define maxrpm 500
 #define dataPin P0_4
 #define clockPin P0_5
@@ -124,7 +124,6 @@ void loop() {
     for (int i = 1; i <= samples; i++) {
       temp = force.get_units(1);
       rpmTemp = IMU.readFloatGyroZ()/6;
-      rpmTemp = rpmTemp * -1;
       if(temp < 0){
         temp = temp * -1;
       }

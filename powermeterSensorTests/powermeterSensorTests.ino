@@ -7,7 +7,7 @@ LSM6DS3 IMU(I2C_MODE, 0x6A);
 
 // -------------------config---------------------------------
 #define factor 1200
-#define rate 100   //time between samples
+#define rate 20   //time between samples
 #define dataPin P0_4
 #define clockPin P0_5
 // -------------------------------------------------------------
