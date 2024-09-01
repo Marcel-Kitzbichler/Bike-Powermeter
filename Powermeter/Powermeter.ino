@@ -7,9 +7,9 @@
 // for calibration set the factor to 1. Put a weight of 1kg on the pedal of the installed crank
 // Divide the weight that you get back by 10 and this is the the new calibration factor.
 // 170mm=0.17m
-#define factor 1200
+#define factor 605
 #define crankmeter 0.17
-#define samples 200
+#define samples 100
 #define rate 20   //time between samples
 #define maxrpm 500
 #define dataPin P0_4
@@ -22,13 +22,10 @@ LSM6DS3 IMU(I2C_MODE, 0x6A);
 
 BLEService cyclingPowerService("1818");
 BLEService batteryService("180F");
-BLEService debugService("87dad091-0a03-40c2-a9c8-632ab09e17df");
 
 BLECharacteristic cyclingPowerMeasurementChar("2A63", BLERead | BLENotify, 8);
 BLECharacteristic cyclingPowerFeatureChar("2A65", BLERead, 4);
 BLECharacteristic sensorLocatChar("2A5D", BLERead, 1);
-
-BLEByteCharacteristic tareChar("87dad091-0a03-40c2-a9c8-632ab09e17d1", BLERead | BLEWrite);
 
 BLEUnsignedCharCharacteristic batteryLevelChar("2A19", BLERead | BLENotify);
 
@@ -41,15 +38,15 @@ unsigned short flags = 0x00;
 
 byte sensorlocation = 0x05;
 
-int rpm = 0;
-int newtons = 0;
+float rpm = 0;
+float newtons = 0;
 int watt = 0;
-uint32_t wattAvg = 0;
+float wattAvg = 0;
 
 int previousMillis = 0;
-int temp = 0;
-int32_t rpmAvg = 0;
-int rpmTemp = 0;
+float powTemp = 0;
+float rpmAvg = 0;
+float rpmTemp = 0;
 
 bool noRotation = false;
 
@@ -78,6 +75,7 @@ void setup() {
 
   force.begin(dataPin, clockPin);
   force.set_scale(factor);
+  delay(5000);
   force.tare(30);
 
   digitalWrite(P0_6, HIGH);
@@ -91,10 +89,8 @@ void setup() {
   cyclingPowerService.addCharacteristic(cyclingPowerFeatureChar);
   cyclingPowerService.addCharacteristic(sensorLocatChar);
   batteryService.addCharacteristic(batteryLevelChar);
-  debugService.addCharacteristic(tareChar);
   BLE.addService(cyclingPowerService);
   BLE.addService(batteryService);
-  BLE.addService(debugService);
 
   slBuffer[0] = sensorlocation & 0xff;
   sensorLocatChar.writeValue(slBuffer, 1);
@@ -113,29 +109,31 @@ void setup() {
 
   batteryLevelChar.writeValue(50);
 
-  tareChar.setEventHandler(BLEWritten, bleTare);
-
   BLE.advertise();
 }
 
 void loop() {
   BLEDevice central = BLE.central();
-  if(central){
+  if(true){
     for (int i = 1; i <= samples; i++) {
-      temp = force.get_units(1);
+      powTemp = force.get_units();
       rpmTemp = IMU.readFloatGyroZ()/6;
-      if(temp < 0){
-        temp = temp * -1;
+      if(powTemp < 0){
+        powTemp = powTemp * -1;
       }
       rpmAvg = rpmAvg + rpmTemp;
-      wattAvg = wattAvg + temp;
+      wattAvg = wattAvg + powTemp;
       previousMillis = millis();
-      while(millis() < previousMillis + rate){
-        BLE.central();
-      }
+      
+      BLE.central();
     }
     newtons = wattAvg / samples;
-    rpm = rpmAvg / samples;
+    rpm = (rpmAvg / samples) * -1;
+
+    if (rpm < 0){
+      rpm = 0;
+    }
+
     wattAvg = 0;
     rpmAvg = 0;
 
@@ -154,10 +152,4 @@ void loop() {
 
     cyclingPowerMeasurementChar.writeValue(bleBuffer, 4);
   }
-}
-
-void bleTare(BLEDevice central, BLECharacteristic characteristic){
-  digitalWrite(P0_6, LOW);
-  force.tare(30);
-  digitalWrite(P0_6, HIGH);
 }

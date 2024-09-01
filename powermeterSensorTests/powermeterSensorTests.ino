@@ -27,7 +27,7 @@ void setup(){
   force.tare(30);
 }
 void loop(){
-  Serial.print(force.get_units(1));
+  Serial.print(force.get_units(20));
   Serial.print(",");
   Serial.println(IMU.readFloatGyroZ()/6);
   delay(rate);
