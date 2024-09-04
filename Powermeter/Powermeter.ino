@@ -57,8 +57,10 @@ void setup() {
   pinMode (P0_30, OUTPUT);
   pinMode (P0_6, OUTPUT);
   pinMode (P0_14, OUTPUT);
+  pinMode (P1_10, OUTPUT);
 
   digitalWrite(P0_14, LOW);
+  digitalWrite(P1_10, LOW);
   digitalWrite(P0_26, HIGH);
   digitalWrite(P0_30, HIGH);
   digitalWrite(P0_6, LOW);
@@ -114,12 +116,13 @@ void setup() {
 
 void loop() {
   BLEDevice central = BLE.central();
-  if(true){
+  while(central){
+    central = BLE.central();
     for (int i = 1; i <= samples; i++) {
-      powTemp = force.get_units();
+      powTemp = force.get_units() * -1;
       rpmTemp = IMU.readFloatGyroZ()/6;
       if(powTemp < 0){
-        powTemp = powTemp * -1;
+        powTemp = 0;
       }
       rpmAvg = rpmAvg + rpmTemp;
       wattAvg = wattAvg + powTemp;
@@ -144,6 +147,7 @@ void loop() {
     Serial.print(rpm);
     Serial.print(",");
     Serial.println(power);
+    Serial.println(analogRead(P0_31));
 
     bleBuffer[0] = flags & 0xff;
     bleBuffer[1] = (flags >> 8) & 0xff;
@@ -152,4 +156,12 @@ void loop() {
 
     cyclingPowerMeasurementChar.writeValue(bleBuffer, 4);
   }
+
+  force.power_down();
+
+  while(central == false){
+    central = BLE.central();
+  }
+
+  force.power_up();
 }
