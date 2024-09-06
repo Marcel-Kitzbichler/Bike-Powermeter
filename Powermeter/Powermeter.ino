@@ -9,9 +9,7 @@
 // 170mm=0.17m
 #define factor 605
 #define crankmeter 0.17
-#define samples 100
-#define rate 20   //time between samples
-#define maxrpm 500
+#define samples 450
 #define dataPin P0_4
 #define clockPin P0_5
 // -------------------------------------------------------------
