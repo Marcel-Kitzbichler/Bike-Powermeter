@@ -51,9 +51,6 @@ void setup() {
     Serial.begin(9600);
   #endif
 
-  pinMode (P0_26, OUTPUT);
-  pinMode (P0_30, OUTPUT);
-  pinMode (P0_6, OUTPUT);
   pinMode (P0_14, OUTPUT);
   pinMode (P1_10, OUTPUT);
 
@@ -61,10 +58,6 @@ void setup() {
   digitalWrite(P0_14, LOW);
   //deactivate microphone to save power
   digitalWrite(P1_10, LOW);
-  //set rgb led
-  digitalWrite(P0_26, HIGH);
-  digitalWrite(P0_30, HIGH);
-  digitalWrite(P0_6, LOW);
 
   delay(4000);
 
@@ -83,11 +76,6 @@ void setup() {
   force.set_scale(factor);
   delay(5000);
   force.tare(30);
-
-  digitalWrite(P0_6, HIGH);
-  digitalWrite(P0_30, LOW);
-  delay(500);
-  digitalWrite(P0_30, HIGH);
 
   BLE.setLocalName("OpenPowermeter");
   BLE.setAdvertisedService(cyclingPowerService);
@@ -122,6 +110,7 @@ void setup() {
 
 void loop() {
   BLEDevice central = BLE.central();
+
   while(central){
     central = BLE.central();
     for (int i = 1; i <= samples; i++) {
