@@ -73,6 +73,8 @@ void setup() {
     while(1);
   }
 
+  IMU.writeRegister(LSM6DS3_ACC_GYRO_INT1_CTRL, LSM6DS3_ACC_GYRO_INT1_SIGN_MOT_ENABLED);
+
   force.begin(dataPin, clockPin);
   force.set_scale(factor);
   delay(5000);
