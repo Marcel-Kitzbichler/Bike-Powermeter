@@ -12,6 +12,7 @@
 #define samples 450
 #define dataPin P0_4
 #define clockPin P0_5
+#define SerialDebug
 // -------------------------------------------------------------
 
 HX711 force;
@@ -41,15 +42,14 @@ float newtons = 0;
 int watt = 0;
 float wattAvg = 0;
 
-int previousMillis = 0;
 float powTemp = 0;
 float rpmAvg = 0;
 float rpmTemp = 0;
 
-bool noRotation = false;
-
 void setup() {
-  Serial.begin(9600);
+  #ifdef SerialDebug
+    Serial.begin(9600);
+  #endif
 
   pinMode (P0_26, OUTPUT);
   pinMode (P0_30, OUTPUT);
@@ -85,10 +85,12 @@ void setup() {
 
   BLE.setLocalName("OpenPowermeter");
   BLE.setAdvertisedService(cyclingPowerService);
+
   cyclingPowerService.addCharacteristic(cyclingPowerMeasurementChar);
   cyclingPowerService.addCharacteristic(cyclingPowerFeatureChar);
   cyclingPowerService.addCharacteristic(sensorLocatChar);
   batteryService.addCharacteristic(batteryLevelChar);
+
   BLE.addService(cyclingPowerService);
   BLE.addService(batteryService);
 
@@ -124,7 +126,6 @@ void loop() {
       }
       rpmAvg = rpmAvg + rpmTemp;
       wattAvg = wattAvg + powTemp;
-      previousMillis = millis();
       
       BLE.central();
     }
@@ -140,12 +141,14 @@ void loop() {
 
     power = newtons * crankmeter * rpm * 0.21;
 
-    Serial.print(newtons);
-    Serial.print(",");
-    Serial.print(rpm);
-    Serial.print(",");
-    Serial.println(power);
-    Serial.println(analogRead(P0_31));
+    #ifdef SerialDebug
+      Serial.print(newtons);
+      Serial.print(",");
+      Serial.print(rpm);
+      Serial.print(",");
+      Serial.println(power);
+      Serial.println(analogRead(P0_31));
+    #endif
 
     bleBuffer[0] = flags & 0xff;
     bleBuffer[1] = (flags >> 8) & 0xff;
