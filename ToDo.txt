@@ -1,0 +1,2 @@
+Add Battery percentage being broadcast over BLE.
+Add Deep Sleep until Trigger from IMU
