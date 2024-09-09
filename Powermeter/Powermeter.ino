@@ -8,6 +8,7 @@
 // Divide the weight that you get back by 10 and this is the the new calibration factor.
 // 170mm=0.17m
 #define factor 605
+#define offset 0
 #define crankmeter 0.17
 #define samples 450
 #define dataPin P0_4
@@ -74,8 +75,7 @@ void setup() {
 
   force.begin(dataPin, clockPin);
   force.set_scale(factor);
-  delay(5000);
-  force.tare(30);
+  force.set_offset(offset);
 
   BLE.setLocalName("OpenPowermeter");
   BLE.setAdvertisedService(cyclingPowerService);
