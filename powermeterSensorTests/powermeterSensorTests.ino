@@ -7,7 +7,7 @@ LSM6DS3 IMU(I2C_MODE, 0x6A);
 
 // -------------------config---------------------------------
 #define factor 1200
-#define rate 20   //time between samples
+#define offset 0
 #define dataPin P0_4
 #define clockPin P0_5
 // -------------------------------------------------------------
@@ -24,11 +24,14 @@ void setup(){
 
   force.begin(dataPin, clockPin);
   force.set_scale(factor);
-  force.tare(30);
+  force.set_offset(offset);
 }
 void loop(){
-  Serial.print(force.get_units(20));
-  Serial.print(",");
+  Serial.print("Raw Loadcell Reading without factor and offset: ");
+  Serial.println(force.read_average(20));
+  Serial.print("Loadcell reading with factor and offset: ");
+  Serial.println(force.get_units(20));
+  Serial.print("Gyroscope reading in rpm: ");
   Serial.println(IMU.readFloatGyroZ()/6);
   delay(rate);
 }
