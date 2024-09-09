@@ -36,8 +36,6 @@ unsigned char fBuffer[4];
 short power;
 unsigned short flags = 0x00;
 
-byte sensorlocation = 0x05;
-
 float rpm = 0;
 float newtons = 0;
 int watt = 0;
@@ -88,8 +86,7 @@ void setup() {
   BLE.addService(cyclingPowerService);
   BLE.addService(batteryService);
 
-  slBuffer[0] = sensorlocation & 0xff;
-  sensorLocatChar.writeValue(slBuffer, 1);
+  sensorLocatChar.writeValue(0x05, 1);
 
   fBuffer[0] = 0x00;
   fBuffer[1] = 0x00;
