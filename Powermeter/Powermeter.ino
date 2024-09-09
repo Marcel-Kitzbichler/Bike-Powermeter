@@ -57,8 +57,11 @@ void setup() {
   pinMode (P0_14, OUTPUT);
   pinMode (P1_10, OUTPUT);
 
+  //set voltage divider pin low
   digitalWrite(P0_14, LOW);
+  //deactivate microphone to save power
   digitalWrite(P1_10, LOW);
+  //set rgb led
   digitalWrite(P0_26, HIGH);
   digitalWrite(P0_30, HIGH);
   digitalWrite(P0_6, LOW);
@@ -73,6 +76,7 @@ void setup() {
     while(1);
   }
 
+  //activate interrupt pin in IMU
   IMU.writeRegister(LSM6DS3_ACC_GYRO_INT1_CTRL, LSM6DS3_ACC_GYRO_INT1_SIGN_MOT_ENABLED);
 
   force.begin(dataPin, clockPin);
