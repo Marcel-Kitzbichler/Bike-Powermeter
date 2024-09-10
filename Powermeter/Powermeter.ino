@@ -106,9 +106,11 @@ void loop() {
 
   while(central){
     central = BLE.central();
+    
     for(int i = 1; i <= samples; i++) {
       forceTemp = force.get_units() * -1;
       rpmTemp = IMU.readFloatGyroZ()/6;
+
       if(forceTemp > 0){
         forceAvg = forceAvg + forceTemp;
       }
@@ -116,6 +118,7 @@ void loop() {
       
       BLE.central();
     }
+
     newtons = forceAvg / samples;
     rpm = (rpmAvg / samples) * -1;
 
