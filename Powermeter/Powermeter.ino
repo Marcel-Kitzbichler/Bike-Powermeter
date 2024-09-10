@@ -82,7 +82,7 @@ void setup() {
   BLE.addService(cyclingPowerService);
   BLE.addService(batteryService);
 
-  sensorLocatChar.writeValue(byte(0x05), 1);
+  sensorLocatChar.writeValue(byte(0x05));
 
   powerFeatureBuffer[0] = 0x00;
   powerFeatureBuffer[1] = 0x00;
