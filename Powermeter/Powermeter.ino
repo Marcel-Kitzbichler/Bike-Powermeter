@@ -56,8 +56,6 @@ void setup() {
   //deactivate microphone to save power
   digitalWrite(P1_10, LOW);
 
-  delay(4000);
-
   if (!BLE.begin()) {
     while (1);
   }
