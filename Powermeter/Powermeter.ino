@@ -43,6 +43,9 @@ float forceTemp = 0;
 float rpmAvg = 0;
 float rpmTemp = 0;
 
+unsigned short rotations = 0;
+unsigned long crankTime = 0;
+
 void setup() {
   #ifdef SerialDebug
     Serial.begin(9600);
@@ -106,7 +109,7 @@ void loop() {
 
   while(central){
     central = BLE.central();
-    
+
     for(int i = 1; i <= samples; i++) {
       forceTemp = force.get_units() * -1;
       rpmTemp = IMU.readFloatGyroZ()/6;
@@ -130,6 +133,15 @@ void loop() {
     rpmAvg = 0;
 
     power = newtons * crankmeter * rpm * 0.21;
+
+    if(millis() < crankTime){
+      crankTime = 0;
+    }
+
+    while(millis() > (crankTime + (60000 / rpm))){
+      crankTime += (60000 / rpm);
+      rotations++;
+    }
 
     #ifdef SerialDebug
       Serial.print(newtons);
