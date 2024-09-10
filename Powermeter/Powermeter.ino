@@ -38,9 +38,9 @@ unsigned short flags = 0x00;
 float rpm = 0;
 float newtons = 0;
 int watt = 0;
-float wattAvg = 0;
+float forceAvg = 0;
 
-float powTemp = 0;
+float forceTemp = 0;
 float rpmAvg = 0;
 float rpmTemp = 0;
 
@@ -110,24 +110,24 @@ void loop() {
   while(central){
     central = BLE.central();
     for (int i = 1; i <= samples; i++) {
-      powTemp = force.get_units() * -1;
+      forceTemp = force.get_units() * -1;
       rpmTemp = IMU.readFloatGyroZ()/6;
-      if(powTemp < 0){
-        powTemp = 0;
+      if(forceTemp < 0){
+        forceTemp = 0;
       }
       rpmAvg = rpmAvg + rpmTemp;
-      wattAvg = wattAvg + powTemp;
+      forceAvg = forceAvg + forceTemp;
       
       BLE.central();
     }
-    newtons = wattAvg / samples;
+    newtons = forceAvg / samples;
     rpm = (rpmAvg / samples) * -1;
 
     if (rpm < 0){
       rpm = 0;
     }
 
-    wattAvg = 0;
+    forceAvg = 0;
     rpmAvg = 0;
 
     power = newtons * crankmeter * rpm * 0.21;
