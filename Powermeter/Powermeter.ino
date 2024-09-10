@@ -29,8 +29,8 @@ BLECharacteristic sensorLocatChar("2A5D", BLERead, 1);
 
 BLEUnsignedCharCharacteristic batteryLevelChar("2A19", BLERead | BLENotify);
 
-unsigned char bleBuffer[8];
-unsigned char fBuffer[4];
+unsigned char powerMeasurementBuffer[8];
+unsigned char powerFeatureBuffer[4];
 
 short power;
 unsigned short flags = 0x00;
@@ -87,17 +87,17 @@ void setup() {
 
   sensorLocatChar.writeValue(byte(0x05), 1);
 
-  fBuffer[0] = 0x00;
-  fBuffer[1] = 0x00;
-  fBuffer[2] = 0x00;
-  fBuffer[3] = 0x08;
-  cyclingPowerFeatureChar.writeValue(fBuffer, 4);
+  powerFeatureBuffer[0] = 0x00;
+  powerFeatureBuffer[1] = 0x00;
+  powerFeatureBuffer[2] = 0x00;
+  powerFeatureBuffer[3] = 0x08;
+  cyclingPowerFeatureChar.writeValue(powerFeatureBuffer, 4);
 
-  bleBuffer[0] = flags & 0xff;
-  bleBuffer[1] = (flags >> 8) & 0xff;
-  bleBuffer[2] = power & 0xff;
-  bleBuffer[3] = (power >> 8) & 0xff;
-  cyclingPowerMeasurementChar.writeValue(bleBuffer, 4);
+  powerMeasurementBuffer[0] = flags & 0xff;
+  powerMeasurementBuffer[1] = (flags >> 8) & 0xff;
+  powerMeasurementBuffer[2] = power & 0xff;
+  powerMeasurementBuffer[3] = (power >> 8) & 0xff;
+  cyclingPowerMeasurementChar.writeValue(powerMeasurementBuffer, 4);
 
   batteryLevelChar.writeValue(50);
 
@@ -141,12 +141,12 @@ void loop() {
       Serial.println(analogRead(P0_31));
     #endif
 
-    bleBuffer[0] = flags & 0xff;
-    bleBuffer[1] = (flags >> 8) & 0xff;
-    bleBuffer[2] = power & 0xff;
-    bleBuffer[3] = (power >> 8) & 0xff;
+    powerMeasurementBuffer[0] = flags & 0xff;
+    powerMeasurementBuffer[1] = (flags >> 8) & 0xff;
+    powerMeasurementBuffer[2] = power & 0xff;
+    powerMeasurementBuffer[3] = (power >> 8) & 0xff;
 
-    cyclingPowerMeasurementChar.writeValue(bleBuffer, 4);
+    cyclingPowerMeasurementChar.writeValue(powerMeasurementBuffer, 4);
   }
 
   force.power_down();
