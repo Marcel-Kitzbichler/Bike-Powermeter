@@ -30,7 +30,6 @@ BLECharacteristic sensorLocatChar("2A5D", BLERead, 1);
 BLEUnsignedCharCharacteristic batteryLevelChar("2A19", BLERead | BLENotify);
 
 unsigned char bleBuffer[8];
-unsigned char slBuffer[1];
 unsigned char fBuffer[4];
 
 short power;
