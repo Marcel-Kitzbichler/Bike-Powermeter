@@ -1,4 +1,5 @@
 Add Battery percentage being broadcast over BLE.
-Add Deep Sleep until Trigger from IMU
+Add Deep Sleep until Trigger from IMU.
+Add crank revolution data to be broadcast over BLE.
 
 Test if offset stays the same over time
