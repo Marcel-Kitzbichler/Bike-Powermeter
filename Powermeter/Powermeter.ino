@@ -37,7 +37,6 @@ unsigned short flags = 0x00;
 
 float rpm = 0;
 float newtons = 0;
-int watt = 0;
 float forceAvg = 0;
 
 float forceTemp = 0;
@@ -109,7 +108,7 @@ void loop() {
 
   while(central){
     central = BLE.central();
-    for (int i = 1; i <= samples; i++) {
+    for(int i = 1; i <= samples; i++) {
       forceTemp = force.get_units() * -1;
       rpmTemp = IMU.readFloatGyroZ()/6;
       if(forceTemp < 0){
