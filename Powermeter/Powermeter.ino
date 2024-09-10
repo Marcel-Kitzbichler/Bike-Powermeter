@@ -32,7 +32,7 @@ BLEUnsignedCharCharacteristic batteryLevelChar("2A19", BLERead | BLENotify);
 unsigned char powerMeasurementBuffer[8];
 unsigned char powerFeatureBuffer[4];
 
-unsigned short power;
+unsigned short power = 0;
 unsigned short flags = 0x00;
 
 float rpm = 0;
