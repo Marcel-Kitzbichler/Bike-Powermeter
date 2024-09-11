@@ -33,7 +33,7 @@ unsigned char powerMeasurementBuffer[8];
 unsigned char powerFeatureBuffer[4];
 
 unsigned short power = 0;
-unsigned short flags = 0x00;
+unsigned short flags = 0x20;
 
 float rpm = 0;
 float newtons = 0;
@@ -156,8 +156,12 @@ void loop() {
     powerMeasurementBuffer[1] = (flags >> 8) & 0xff;
     powerMeasurementBuffer[2] = power & 0xff;
     powerMeasurementBuffer[3] = (power >> 8) & 0xff;
+    powerMeasurementBuffer[4] = rotations & 0xff;
+    powerMeasurementBuffer[5] = (rotations >> 8) & 0xff;
+    powerMeasurementBuffer[6] = crankTime & 0xff;
+    powerMeasurementBuffer[7] = (crankTime >> 8) & 0xff;
 
-    cyclingPowerMeasurementChar.writeValue(powerMeasurementBuffer, 4);
+    cyclingPowerMeasurementChar.writeValue(powerMeasurementBuffer, 8);
   }
 
   force.power_down();
