@@ -158,8 +158,8 @@ void loop() {
     powerMeasurementBuffer[3] = (power >> 8) & 0xff;
     powerMeasurementBuffer[4] = rotations & 0xff;
     powerMeasurementBuffer[5] = (rotations >> 8) & 0xff;
-    powerMeasurementBuffer[6] = crankTime & 0xff;
-    powerMeasurementBuffer[7] = (crankTime >> 8) & 0xff;
+    powerMeasurementBuffer[6] = short(crankTime*1.024) & 0xff;
+    powerMeasurementBuffer[7] = (short(crankTime*1.024) >> 8) & 0xff;
 
     cyclingPowerMeasurementChar.writeValue(powerMeasurementBuffer, 8);
   }
