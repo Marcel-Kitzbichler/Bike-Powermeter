@@ -97,7 +97,12 @@ void setup() {
   powerMeasurementBuffer[1] = (flags >> 8) & 0xff;
   powerMeasurementBuffer[2] = power & 0xff;
   powerMeasurementBuffer[3] = (power >> 8) & 0xff;
-  cyclingPowerMeasurementChar.writeValue(powerMeasurementBuffer, 4);
+  powerMeasurementBuffer[4] = rotations & 0xff;
+  powerMeasurementBuffer[5] = (rotations >> 8) & 0xff;
+  powerMeasurementBuffer[6] = short(crankTime*1.024) & 0xff;
+  powerMeasurementBuffer[7] = (short(crankTime*1.024) >> 8) & 0xff;
+
+  cyclingPowerMeasurementChar.writeValue(powerMeasurementBuffer, 8);
 
   batteryLevelChar.writeValue(50);
 
@@ -138,9 +143,11 @@ void loop() {
       crankTime = 0;
     }
 
-    while(millis() > (crankTime + (60000 / rpm))){
-      crankTime += (60000 / rpm);
-      rotations++;
+    if(rpm > 5){
+      while(millis() > (crankTime + (60000 / rpm))){
+        crankTime += (60000 / rpm);
+        rotations++;
+      }
     }
 
     #ifdef SerialDebug
