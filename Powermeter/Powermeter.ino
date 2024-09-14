@@ -26,6 +26,7 @@ BLEService batteryService("180F");
 BLECharacteristic cyclingPowerMeasurementChar("2A63", BLERead | BLENotify, 8);
 BLECharacteristic cyclingPowerFeatureChar("2A65", BLERead, 4);
 BLECharacteristic sensorLocatChar("2A5D", BLERead, 1);
+BLECharacteristic cyclingPowerControl("2A66",BLEWrite | BLERead | BLEIndicate, 1);
 
 BLEUnsignedCharCharacteristic batteryLevelChar("2A19", BLERead | BLENotify);
 
@@ -80,10 +81,13 @@ void setup() {
   cyclingPowerService.addCharacteristic(cyclingPowerMeasurementChar);
   cyclingPowerService.addCharacteristic(cyclingPowerFeatureChar);
   cyclingPowerService.addCharacteristic(sensorLocatChar);
+  //cyclingPowerService.addCharacteristic(cyclingPowerControl);
   batteryService.addCharacteristic(batteryLevelChar);
 
   BLE.addService(cyclingPowerService);
   BLE.addService(batteryService);
+
+  cyclingPowerControl.setEventHandler(BLEWritten, bleControl);
 
   sensorLocatChar.writeValue(byte(0x05));
 
@@ -157,6 +161,7 @@ void loop() {
       Serial.print(",");
       Serial.println(power);
       Serial.println(analogRead(P0_31));
+      Serial.println(force.get_units(3));
     #endif
 
     powerMeasurementBuffer[0] = flags & 0xff;
@@ -179,3 +184,7 @@ void loop() {
 
   force.power_up();
 }
+
+void bleControl(BLEDevice writingDevice, BLECharacteristic writtenCharacteristic){
+  Serial.println(int(writtenCharacteristic.value()));
+};
