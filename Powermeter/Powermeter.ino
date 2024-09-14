@@ -54,6 +54,7 @@ void setup() {
 
   pinMode (P0_14, OUTPUT);
   pinMode (P1_10, OUTPUT);
+  pinMode (P0_11, INPUT);
 
   //set voltage divider pin low
   digitalWrite(P0_14, LOW);
@@ -162,6 +163,7 @@ void loop() {
       Serial.println(power);
       Serial.println(analogRead(P0_31));
       Serial.println(force.get_units(3));
+      Serial.println(digitalRead(P0_11));
     #endif
 
     powerMeasurementBuffer[0] = flags & 0xff;
