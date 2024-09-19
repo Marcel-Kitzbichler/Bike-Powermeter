@@ -8,15 +8,15 @@ LSM6DS3 IMU(I2C_MODE, 0x6A);
 // -------------------config---------------------------------
 #define factor 605
 #define offset -864000
-#define dataPin P0_4
-#define clockPin P0_5
+#define dataPin PIN_WIRE1_SDA
+#define clockPin PIN_WIRE1_SCL
 // -------------------------------------------------------------
 
 void setup(){
   Serial.begin(9600);
 
-  pinMode (P0_14, OUTPUT);
-  digitalWrite(P0_14, LOW);
+  pinMode (VBAT_ENABLE, OUTPUT);
+  digitalWrite(VBAT_ENABLE, LOW);
 
   if (IMU.begin() != 0) {
     while(1);
