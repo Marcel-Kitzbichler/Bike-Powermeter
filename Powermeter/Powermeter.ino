@@ -1,3 +1,4 @@
+#include <arduino.h>
 #include <LSM6DS3.h>
 #include <ArduinoBLE.h>
 #include <HX711.h>
@@ -11,8 +12,8 @@
 #define offset -862800
 #define crankmeter 0.17
 #define samples 450
-#define dataPin P0_4
-#define clockPin P0_5
+#define dataPin PIN_WIRE1_SDA
+#define clockPin PIN_WIRE1_SCL
 #define SerialDebug
 // -------------------------------------------------------------
 
@@ -52,14 +53,14 @@ void setup() {
     Serial.begin(9600);
   #endif
 
-  pinMode (P0_14, OUTPUT);
-  pinMode (P1_10, OUTPUT);
-  pinMode (P0_11, INPUT);
+  pinMode (VBAT_ENABLE, OUTPUT);
+  pinMode (PIN_PDM_PWR, OUTPUT);
+  pinMode (PIN_LSM6DS3TR_C_INT1, INPUT);
 
   //set voltage divider pin low
-  digitalWrite(P0_14, LOW);
+  digitalWrite(VBAT_ENABLE, LOW);
   //deactivate microphone to save power
-  digitalWrite(P1_10, LOW);
+  digitalWrite(PIN_PDM_PWR, LOW);
 
   if (!BLE.begin()) {
     while (1);
@@ -161,9 +162,9 @@ void loop() {
       Serial.print(rpm);
       Serial.print(",");
       Serial.println(power);
-      Serial.println(analogRead(P0_31));
+      Serial.println(analogRead(PIN_LSM6DS3TR_C_INT1));
       Serial.println(force.get_units(3));
-      Serial.println(digitalRead(P0_11));
+      Serial.println(digitalRead(PIN_LSM6DS3TR_C_INT1));
     #endif
 
     powerMeasurementBuffer[0] = flags & 0xff;
