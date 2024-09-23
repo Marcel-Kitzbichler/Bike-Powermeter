@@ -1,5 +1,5 @@
+#include <Arduino_LSM6DS3.h>
 #include <arduino.h>
-//#include <LSM6DS3.h>
 #include <HX711.h>
 #include <bluefruit.h>
 
@@ -46,6 +46,8 @@ float rpmTemp = 0;
 unsigned short rotations = 0;
 unsigned long crankTime = 0;
 
+float gyroX, gyroY;
+
 void setup() {
   #ifdef SerialDebug
     Serial.begin(9600);
@@ -63,6 +65,13 @@ void setup() {
   force.begin(dataPin, clockPin);
   force.set_scale(factor);
   force.set_offset(offset);
+
+  if (!IMU.begin()) {
+    Serial.println("Failed to initialize IMU!");
+
+    while (1);
+  }
+
   setupBLE();
 }
 
@@ -73,7 +82,8 @@ void loop() {
 
     for(int i = 1; i <= samples; i++) {
       forceTemp = force.get_units() * -1;
-      rpmTemp = -50;
+
+      IMU.readGyroscope(gyroX, gyroY, rpmTemp);
 
       if(forceTemp > 0){
         forceAvg = forceAvg + forceTemp;
