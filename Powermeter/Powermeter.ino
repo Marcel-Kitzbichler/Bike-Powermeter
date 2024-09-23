@@ -72,6 +72,7 @@ void setup() {
   force.begin(dataPin, clockPin);
   force.set_scale(factor);
   force.set_offset(offset);
+  setupBLE();
 }
 
 void loop() {
@@ -120,7 +121,7 @@ void loop() {
       Serial.print(",");
       Serial.println(power);
       Serial.println(analogRead(PIN_LSM6DS3TR_C_INT1));
-      Serial.println(force.get_units(3));
+      //Serial.println(force.get_units(3));
       Serial.println(digitalRead(PIN_LSM6DS3TR_C_INT1));
     #endif
 
@@ -133,7 +134,7 @@ void loop() {
     powerMeasurementBuffer[6] = short(crankTime*1.024) & 0xff;
     powerMeasurementBuffer[7] = (short(crankTime*1.024) >> 8) & 0xff;
 
-    cyclingPowerMeasurementChar.write(powerMeasurementBuffer, 8);
+    cyclingPowerMeasurementChar.notify(powerMeasurementBuffer, 8);
   }
 
 }
@@ -184,6 +185,8 @@ void setupBLE(){
   Bluefruit.Advertising.addTxPower();
   Bluefruit.Advertising.addService(cyclingPowerService);
   Bluefruit.Advertising.addName();
+
+  Bluefruit.autoConnLed(false);
   
   Bluefruit.Advertising.restartOnDisconnect(true);
   Bluefruit.Advertising.setInterval(32, 244);   
