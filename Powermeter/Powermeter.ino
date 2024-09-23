@@ -1,5 +1,5 @@
 #include <arduino.h>
-#include <LSM6DS3.h>
+//#include <LSM6DS3.h>
 #include <HX711.h>
 #include <bluefruit.h>
 
@@ -18,8 +18,6 @@
 // -------------------------------------------------------------
 
 HX711 force;
-
-LSM6DS3 IMU(I2C_MODE, 0x6A);
 
 BLEService cyclingPowerService = BLEService("1818");
 BLEDis bledis;
@@ -62,13 +60,6 @@ void setup() {
   //deactivate microphone to save power
   digitalWrite(PIN_PDM_PWR, LOW);
 
-  if (IMU.begin() != 0) {
-    while(1);
-  }
-
-  //activate interrupt pin in IMU
-  IMU.writeRegister(LSM6DS3_ACC_GYRO_INT1_CTRL, LSM6DS3_ACC_GYRO_INT1_SIGN_MOT_ENABLED);
-
   force.begin(dataPin, clockPin);
   force.set_scale(factor);
   force.set_offset(offset);
@@ -82,7 +73,7 @@ void loop() {
 
     for(int i = 1; i <= samples; i++) {
       forceTemp = force.get_units() * -1;
-      rpmTemp = IMU.readFloatGyroZ()/6;
+      rpmTemp = -50;
 
       if(forceTemp > 0){
         forceAvg = forceAvg + forceTemp;
