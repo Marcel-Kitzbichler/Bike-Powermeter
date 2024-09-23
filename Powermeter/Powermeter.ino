@@ -1,7 +1,7 @@
 #include <arduino.h>
 #include <LSM6DS3.h>
-#include <ArduinoBLE.h>
 #include <HX711.h>
+#include <bluefruit.h>
 
 // -------------------config---------------------------------
 // calibrate scale to newton!
@@ -21,18 +21,18 @@ HX711 force;
 
 LSM6DS3 IMU(I2C_MODE, 0x6A);
 
-BLEService cyclingPowerService("1818");
-BLEService batteryService("180F");
+BLEService cyclingPowerService = BLEService("1818");
+BLEDis bledis;
+BLEBas blebas; 
 
-BLECharacteristic cyclingPowerMeasurementChar("2A63", BLERead | BLENotify, 8);
-BLECharacteristic cyclingPowerFeatureChar("2A65", BLERead, 4);
-BLECharacteristic sensorLocatChar("2A5D", BLERead, 1);
-BLECharacteristic cyclingPowerControl("2A66",BLEWrite | BLERead | BLEIndicate, 1);
+BLECharacteristic cyclingPowerMeasurementChar = BLECharacteristic("2A63");
+BLECharacteristic cyclingPowerFeatureChar = BLECharacteristic("2A65");
+BLECharacteristic sensorLocatChar = BLECharacteristic("2A5D");
 
-BLEUnsignedCharCharacteristic batteryLevelChar("2A19", BLERead | BLENotify);
 
 unsigned char powerMeasurementBuffer[8];
 unsigned char powerFeatureBuffer[4];
+unsigned char sensorLocatBuffer[1];
 
 unsigned short power = 0;
 unsigned short flags = 0x20;
@@ -62,10 +62,6 @@ void setup() {
   //deactivate microphone to save power
   digitalWrite(PIN_PDM_PWR, LOW);
 
-  if (!BLE.begin()) {
-    while (1);
-  }
-
   if (IMU.begin() != 0) {
     while(1);
   }
@@ -76,50 +72,12 @@ void setup() {
   force.begin(dataPin, clockPin);
   force.set_scale(factor);
   force.set_offset(offset);
-
-  BLE.setLocalName("OpenPowermeter");
-  BLE.setAdvertisedService(cyclingPowerService);
-
-  cyclingPowerService.addCharacteristic(cyclingPowerMeasurementChar);
-  cyclingPowerService.addCharacteristic(cyclingPowerFeatureChar);
-  cyclingPowerService.addCharacteristic(sensorLocatChar);
-  //cyclingPowerService.addCharacteristic(cyclingPowerControl);
-  batteryService.addCharacteristic(batteryLevelChar);
-
-  BLE.addService(cyclingPowerService);
-  BLE.addService(batteryService);
-
-  cyclingPowerControl.setEventHandler(BLEWritten, bleControl);
-
-  sensorLocatChar.writeValue(byte(0x05));
-
-  powerFeatureBuffer[0] = 0x00;
-  powerFeatureBuffer[1] = 0x00;
-  powerFeatureBuffer[2] = 0x00;
-  powerFeatureBuffer[3] = 0x08;
-  cyclingPowerFeatureChar.writeValue(powerFeatureBuffer, 4);
-
-  powerMeasurementBuffer[0] = flags & 0xff;
-  powerMeasurementBuffer[1] = (flags >> 8) & 0xff;
-  powerMeasurementBuffer[2] = power & 0xff;
-  powerMeasurementBuffer[3] = (power >> 8) & 0xff;
-  powerMeasurementBuffer[4] = rotations & 0xff;
-  powerMeasurementBuffer[5] = (rotations >> 8) & 0xff;
-  powerMeasurementBuffer[6] = short(crankTime*1.024) & 0xff;
-  powerMeasurementBuffer[7] = (short(crankTime*1.024) >> 8) & 0xff;
-
-  cyclingPowerMeasurementChar.writeValue(powerMeasurementBuffer, 8);
-
-  batteryLevelChar.writeValue(50);
-
-  BLE.advertise();
 }
 
 void loop() {
-  BLEDevice central = BLE.central();
 
-  while(central){
-    central = BLE.central();
+
+  while(true){
 
     for(int i = 1; i <= samples; i++) {
       forceTemp = force.get_units() * -1;
@@ -130,7 +88,6 @@ void loop() {
       }
       rpmAvg = rpmAvg + rpmTemp;
       
-      BLE.central();
     }
 
     newtons = forceAvg / samples;
@@ -176,18 +133,60 @@ void loop() {
     powerMeasurementBuffer[6] = short(crankTime*1.024) & 0xff;
     powerMeasurementBuffer[7] = (short(crankTime*1.024) >> 8) & 0xff;
 
-    cyclingPowerMeasurementChar.writeValue(powerMeasurementBuffer, 8);
+    cyclingPowerMeasurementChar.write(powerMeasurementBuffer, 8);
   }
 
-  force.power_down();
-
-  while(central == false){
-    central = BLE.central();
-  }
-
-  force.power_up();
 }
 
-void bleControl(BLEDevice writingDevice, BLECharacteristic writtenCharacteristic){
-  Serial.println(int(writtenCharacteristic.value()));
-};
+void setupBLE(){
+  Bluefruit.begin();
+
+  bledis.setManufacturer("openSource");
+  bledis.setModel("OpenPowermeter");
+  bledis.begin();
+
+  blebas.begin();
+  blebas.write(50);  
+
+  cyclingPowerService.begin();
+
+  sensorLocatBuffer[0] = 0x05;
+  sensorLocatChar.setProperties(CHR_PROPS_READ);
+  sensorLocatChar.setFixedLen(1);
+  sensorLocatChar.begin();
+  sensorLocatChar.write(sensorLocatBuffer,1);
+
+  powerFeatureBuffer[0] = 0x00;
+  powerFeatureBuffer[1] = 0x00;
+  powerFeatureBuffer[2] = 0x00;
+  powerFeatureBuffer[3] = 0x08;
+  cyclingPowerFeatureChar.setProperties(CHR_PROPS_READ);
+  cyclingPowerFeatureChar.setFixedLen(4);
+  cyclingPowerFeatureChar.begin();
+  cyclingPowerFeatureChar.write(powerFeatureBuffer, 4);
+
+  powerMeasurementBuffer[0] = flags & 0xff;
+  powerMeasurementBuffer[1] = (flags >> 8) & 0xff;
+  powerMeasurementBuffer[2] = power & 0xff;
+  powerMeasurementBuffer[3] = (power >> 8) & 0xff;
+  powerMeasurementBuffer[4] = rotations & 0xff;
+  powerMeasurementBuffer[5] = (rotations >> 8) & 0xff;
+  powerMeasurementBuffer[6] = short(crankTime*1.024) & 0xff;
+  powerMeasurementBuffer[7] = (short(crankTime*1.024) >> 8) & 0xff;
+  cyclingPowerMeasurementChar.setProperties(CHR_PROPS_NOTIFY | CHR_PROPS_READ);
+  cyclingPowerMeasurementChar.setFixedLen(8);
+  cyclingPowerMeasurementChar.begin();
+  cyclingPowerMeasurementChar.write(powerMeasurementBuffer, 8);
+
+
+
+  Bluefruit.Advertising.addFlags(BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE);
+  Bluefruit.Advertising.addTxPower();
+  Bluefruit.Advertising.addService(cyclingPowerService);
+  Bluefruit.Advertising.addName();
+  
+  Bluefruit.Advertising.restartOnDisconnect(true);
+  Bluefruit.Advertising.setInterval(32, 244);   
+  Bluefruit.Advertising.setFastTimeout(30);      
+  Bluefruit.Advertising.start(0);                 
+}
