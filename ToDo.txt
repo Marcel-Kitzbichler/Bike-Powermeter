@@ -1,5 +1,7 @@
 Add Battery percentage being broadcast over BLE.
 Add Deep Sleep until Trigger from IMU.
-Add crank revolution data to be broadcast over BLE. //done but yet to test
+Add crank revolution data to be broadcast over BLE. //done but yet to test // tested works
 
-Test if offset stays the same over time
+Test if offset stays the same over time // seems to stay
+Test if port to bluefruit worked
+Test if library for imu still work's and replace if it doesn't.
